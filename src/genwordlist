@@ -292,9 +292,24 @@ def print_diceware_list(words, outfile, limit=None, nb_dices=None, nb_sides=6, p
     nb_words = len(words)
 
     if print_dices:
+        if nb_sides == 10:
+            # Let's assume 10 sides means 0-9 to keep it at one character
+            sides = [ str(side) for side in range(0, nb_sides) ]
+        else:
+            sides = [ str(side) for side in range(1, nb_sides + 1) ]
+
+        sides_len = max(map(len, sides))
+        print(sides_len)
+        sides = [ '{:>{sides_len}}'.format(side, sides_len=sides_len) for side in sides ]
+        if sides_len == 1:
+            dice_sep = ''
+        else:
+            dice_sep = '-'
+
         if not nb_dices:
             nb_dices = math.ceil(math.log(nb_words, nb_sides))
-        dices = [1] * nb_dices
+        iters = [ iter(sides) for _ in range(nb_dices) ]
+        dices = itertools.product(*iters)
 
     try:
         locale.setlocale(locale.LC_COLLATE, 'fr_FR.UTF-8')
@@ -311,21 +326,14 @@ def print_diceware_list(words, outfile, limit=None, nb_dices=None, nb_sides=6, p
             count_nonascii = count_nonascii + 1
 
         if print_dices:
-            print('{} {}'.format(''.join(str(dice) for dice in dices), word['mot']), file=outfile)
-
-            for x in range(1, nb_dices + 1):
-                if dices[-x] < nb_sides:
-                    dices[-x] = dices[-x]+1
-                    break
-                else:
-                    dices[-x] = 1
+            print('{} {}'.format(dice_sep.join(next(dices)), word['mot']), file=outfile)
         else:
             print(word['mot'], file=outfile)
 
     avg_len = len_total / nb_words
     efficiency = round(math.log(nb_words, 2) / avg_len, 1)
 
-    print('{} words ({} non ascii), avg len: {} char., efficiency: ~{} bits / char'.format(
+    print('\n{} words ({} non ascii), avg len: {} char., efficiency: ~{} bits / char'.format(
         nb_words, count_nonascii, round(avg_len, 2), efficiency), file=sys.stderr)
 
 
@@ -348,12 +356,13 @@ def main():
     parser.add_argument('-l', '--edit-distance', type=int)
     parser.add_argument('-d', '--decodable', action='store_true')
     parser.add_argument('--no-print-dices', action='store_true')
+    parser.add_argument('--dice-sides', type=int, default=6)
     parser.add_argument('-o', '--out', type=argparse.FileType('w'))
     parser.add_argument('-x', '--exclude-file', type=argparse.FileType('r'))
 
     args = parser.parse_args()
 
-    nb_dice_sides = 6
+    nb_dice_sides = args.dice_sides
 
     print_dices = not args.no_print_dices
     skip_cgrams = args.skip_cgrams.split(',')

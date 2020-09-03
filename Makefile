@@ -26,5 +26,8 @@ wordlist_fr_4d.txt: $(LEXFILE)
 wordlist_fr_4d_2.txt: $(LEXFILE)
 	$(GEN) -n4 -M10 -p3 -l3 $< -o $@ $(FLAGS)
 
+wordlist_fr_5d10.txt: $(LEXFILE)
+	$(GEN) -n5 --dice-sides=10 -M10 -V4 $< -o $@ $(FLAGS)
+
 clean_all:
 	rm wordlist*.txt extra/wordlist*.txt
