@@ -50,6 +50,17 @@ VULGAR_LEMMES = [
     'niquer',
     'sodomie',
 ]
+MISC_LEMMES = [
+    'comac',
+    'frac',
+    'viol',
+    'violer',
+    'suicide',
+    'suicider',
+    'mort',
+    'paros',
+    'ouzo',
+]
 
 
 def warn(message):
@@ -358,7 +369,7 @@ def main():
     elif args.include_bad_words == 1:
         skip_lemmes = INSULT_LEMMES
     else:
-        skip_lemmes = VULGAR_LEMMES + INSULT_LEMMES
+        skip_lemmes = VULGAR_LEMMES + INSULT_LEMMES + MISC_LEMMES
 
     data = load_lexi_file(args.LEXIQUE_FILE, min_letters=args.min_letters,
                           max_letters=args.max_letters,
