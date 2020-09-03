@@ -69,10 +69,15 @@ def load_lexi_file(file, min_letters=0, max_letters=100, valid_chars='.',
     if exclude_file:
         exclude = [word.strip() for word in exclude_file]
 
+    exclude_ends = re.compile(r'(ie|is|es|od)$')
+    exclude_ver_re = re.compile(r'(cnd|sub|imp|fut|pas|2s|1p|2p|3p)')
+
     for row in reader:
         word = row['1_ortho']
         lemme = row['3_lemme']
         cgram = row['4_cgram']
+        genre = row['5_genre']
+        nombre = row['6_nombre']
         freqlemfilm = float(row['7_freqlemfilms2'])
         freqlembook = float(row['8_freqlemlivres'])
         freqfilm = float(row['9_freqfilms2'])
@@ -80,13 +85,22 @@ def load_lexi_file(file, min_letters=0, max_letters=100, valid_chars='.',
         infover = row['11_infover']
         nbletters = int(row['15_nblettres'])
 
+        if nombre == 'p':
+            continue
+
         if nbletters < min_letters or nbletters > max_letters:
+            continue
+
+        if exclude_ends.match(word):
             continue
 
         if lemme in skip_lemmes:
             continue
 
         if cgram in skip_cgrams:
+            continue
+
+        if exclude_ver_re.search(infover):
             continue
 
         # Application sauvage de la réforme 1990 sur l'accent circonflexe
