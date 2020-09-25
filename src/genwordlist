@@ -9,7 +9,7 @@ import operator
 import re
 import sys
 
-INSULT_LEMMES = [
+INSULT_LEMMES = {
     'bamboula',
     'bicot',
     'boche',
@@ -30,8 +30,8 @@ INSULT_LEMMES = [
     'salope',
     'trouduc',
     'youpin',
-]
-VULGAR_LEMMES = [
+}
+VULGAR_LEMMES = {
     'baise',
     'baiser',
     'baiseur',
@@ -49,8 +49,8 @@ VULGAR_LEMMES = [
     'merdeux',
     'niquer',
     'sodomie',
-]
-MISC_LEMMES = [
+}
+MISC_LEMMES = {
     'comac',
     'frac',
     'viol',
@@ -60,7 +60,7 @@ MISC_LEMMES = [
     'mort',
     'paros',
     'ouzo',
-]
+}
 
 
 def warn(message):
@@ -68,7 +68,7 @@ def warn(message):
 
 
 def load_lexi_file(file, min_letters=0, max_letters=100, valid_chars='.',
-                   skip_lemmes=[], skip_cgrams=[], min_freq=0.0,
+                   skip_lemmes=set(), skip_cgrams=[], min_freq=0.0,
                    skip_low_lemmes=True, non_ascii_cost=0, exclude_file=None):
     data = []
     reader = csv.DictReader(file, delimiter='\t', quoting=csv.QUOTE_NONE)
@@ -78,7 +78,7 @@ def load_lexi_file(file, min_letters=0, max_letters=100, valid_chars='.',
     exclude = []
 
     if exclude_file:
-        exclude = [word.strip() for word in exclude_file]
+        exclude = {word.strip() for word in exclude_file}
 
     exclude_ends = re.compile(r'(ie|is|es|od)$')
     exclude_ver_re = re.compile(r'(cnd|sub|imp|fut|pas|2s|1p|2p|3p)')
@@ -374,11 +374,11 @@ def main():
         limit = args.limit
 
     if args.include_bad_words >= 2:
-        skip_lemmes = []
+        skip_lemmes = set()
     elif args.include_bad_words == 1:
         skip_lemmes = INSULT_LEMMES
     else:
-        skip_lemmes = VULGAR_LEMMES + INSULT_LEMMES + MISC_LEMMES
+        skip_lemmes = VULGAR_LEMMES.union(INSULT_LEMMES).union(MISC_LEMMES)
 
     data = load_lexi_file(args.LEXIQUE_FILE, min_letters=args.min_letters,
                           max_letters=args.max_letters,
