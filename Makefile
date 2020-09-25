@@ -29,5 +29,8 @@ wordlist_fr_4d_2.txt: $(LEXFILE)
 wordlist_fr_4d10.txt: $(LEXFILE)
 	$(GEN) -n4 --dice-sides=10 -M10 -V4 $< -o $@ $(FLAGS)
 
+wordlist_%.json: wordlist_%.txt
+	jq --raw-input 'split(" ") | {(.[0]): .[1]}' < $< | jq -s 'add' > $@
+
 clean_all:
 	rm wordlist*.txt extra/wordlist*.txt
